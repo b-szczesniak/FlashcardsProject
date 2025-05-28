@@ -39,10 +39,9 @@ public class FlashcardManager {
         return result;
     }
 
-    public boolean removeCard(Flashcard card) {
+    public void removeCard(Flashcard card) {
         boolean removed = cards.remove(card);
         if (removed) removeCount++;
-        return removed;
     }
 
     public List<Flashcard> getCardsSorted() {

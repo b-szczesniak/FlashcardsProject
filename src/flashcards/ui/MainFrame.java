@@ -21,7 +21,7 @@ public class MainFrame extends JFrame {
         super("Fiszki do angielskiego");
         startTime = System.currentTimeMillis();
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setSize(800, 400);
+        setSize(900, 600);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         initToolBar();
@@ -36,11 +36,20 @@ public class MainFrame extends JFrame {
 
     private void initToolBar() {
         JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        toolBar.setPreferredSize(new Dimension(0, 60));
         JButton btnAdd = new JButton("Dodaj");
         JButton btnRemove = new JButton("Usuń");
         JButton btnSearch = new JButton("Wyszukaj");
         JButton btnShow = new JButton("Pokaż wszystkie");
         JButton btnExit = new JButton("Zapisz i zakończ");
+
+        Font btnFont = new Font(Font.SANS_SERIF, Font.BOLD, 16);
+        Dimension btnSize = new Dimension(150, 45);
+        for (JButton btn : new JButton[]{btnAdd, btnRemove, btnSearch, btnShow, btnExit}) {
+            btn.setFont(btnFont);
+            btn.setPreferredSize(btnSize);
+        }
 
         btnAdd.addActionListener(e -> addCard());
         btnRemove.addActionListener(e -> removeCard());
@@ -52,7 +61,7 @@ public class MainFrame extends JFrame {
         toolBar.add(btnRemove);
         toolBar.add(btnSearch);
         toolBar.add(btnShow);
-        toolBar.addSeparator();
+        toolBar.addSeparator(new Dimension(20, 0));
         toolBar.add(btnExit);
 
         add(toolBar, BorderLayout.NORTH);
@@ -67,9 +76,17 @@ public class MainFrame extends JFrame {
             }
         };
         table = new JTable(tableModel);
+
+        table.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        table.setRowHeight(28);
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
+        table.getTableHeader().setPreferredSize(new Dimension(table.getWidth(), 32));
+        table.getColumnModel().getColumn(0).setPreferredWidth(300);
+        table.getColumnModel().getColumn(1).setPreferredWidth(300);
+
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
-        // Na start załaduj istniejące fiszki, jeśli są
+
         try {
             mgr.loadFromCSV("cards.csv");
             updateTable(mgr.getCardsSorted());
@@ -91,7 +108,7 @@ public class MainFrame extends JFrame {
             String translation = JOptionPane.showInputDialog(this, "Wprowadź tłumaczenie:");
             if (translation == null || translation.trim().isEmpty()) return;
             mgr.addCard(new Flashcard(term.trim(), translation.trim()));
-            JOptionPane.showMessageDialog(this, "Dodano fiszkę!");
+            updateTable(mgr.getCardsSorted());
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "Błąd: " + ex.getMessage(),
@@ -110,7 +127,7 @@ public class MainFrame extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Usunąć: " + f + "?", "Potwierdź", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 mgr.removeCard(f);
-                JOptionPane.showMessageDialog(this, "Usunięto fiszkę.");
+                updateTable(mgr.getCardsSorted());
             }
         }
     }
@@ -122,44 +139,32 @@ public class MainFrame extends JFrame {
         if (results.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Brak wyników.", "Info", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            StringBuilder sb = new StringBuilder();
-            results.forEach(f -> sb.append(f).append("\n"));
-            JTextArea area = new JTextArea(sb.toString());
-            area.setEditable(false);
-            JScrollPane scroll = new JScrollPane(area);
-            scroll.setPreferredSize(new Dimension(300, 200));
-            JOptionPane.showMessageDialog(this, scroll, "Wyniki wyszukiwania", JOptionPane.INFORMATION_MESSAGE);
+            updateTable(results);
         }
-    }
-
-    private void showAll() {
-        List<Flashcard> list = mgr.getCardsSorted();
-        String[] columns = {"Słowo", "Tłumaczenie"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
-        for (Flashcard f : list) {
-            model.addRow(new Object[]{f.getTerm(), f.getTranslation()});
-        }
-        JTable table = new JTable(model);
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setPreferredSize(new Dimension(400, 300));
-        JOptionPane.showMessageDialog(this, scroll, "Wszystkie fiszki", JOptionPane.PLAIN_MESSAGE);
     }
 
     private void onExit() {
         try {
             mgr.saveToCSV("cards.csv");
-            long duration = System.currentTimeMillis() - startTime;
-            JOptionPane.showMessageDialog(this,
-                    "Zapisano dane.\nCzas działania: " + duration/1000 + "s");
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Błąd zapisu: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
+        long duration = System.currentTimeMillis() - startTime;
+        String[] statsCols = {"Statystyka", "Wartość"};
+        DefaultTableModel statsModel = new DefaultTableModel(statsCols, 0);
+        statsModel.addRow(new Object[]{"Czas działania (s)", duration / 1000});
+        statsModel.addRow(new Object[]{"Dodano fiszek", mgr.getAddCount()});
+        statsModel.addRow(new Object[]{"Usunięto fiszek", mgr.getRemoveCount()});
+        statsModel.addRow(new Object[]{"Wyszukiwań", mgr.getSearchCount()});
+        JTable statsTable = new JTable(statsModel);
+        statsTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        statsTable.setRowHeight(24);
+        statsTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
+        JScrollPane statsScroll = new JScrollPane(statsTable);
+        statsScroll.setPreferredSize(new Dimension(400, 150));
+        JOptionPane.showMessageDialog(this, statsScroll, "Statystyki działania", JOptionPane.PLAIN_MESSAGE);
         System.exit(0);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
     }
 }
