@@ -1,14 +1,12 @@
 package flashcards.util;
 
 import flashcards.model.Flashcard;
+import java.io.*;
+import java.util.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Scanner;
-
+/**
+ * Pomocnicza klasa do wczytywania i zapisywania fiszek w formacie CSV.
+ */
 public class CSVUtil {
     /**
      * Wczytuje fiszki z pliku CSV.

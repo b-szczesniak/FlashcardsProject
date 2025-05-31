@@ -11,12 +11,18 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Główne okno aplikacji z GUI do obsługi fiszek.
+ */
 public class MainFrame extends JFrame {
     private FlashcardManager mgr = new FlashcardManager();
     private long startTime;
     private DefaultTableModel tableModel;
     private JTable table;
 
+    /**
+     * Konstruktor okna inicjalizuje komponenty GUI i ładuje dane.
+     */
     public MainFrame() {
         super("Fiszki do angielskiego");
         startTime = System.currentTimeMillis();
@@ -34,6 +40,9 @@ public class MainFrame extends JFrame {
         });
     }
 
+    /**
+     * Tworzy pasek narzędzi z przyciskami i przypisuje akcje.
+     */
     private void initToolBar() {
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
@@ -67,6 +76,9 @@ public class MainFrame extends JFrame {
         add(toolBar, BorderLayout.NORTH);
     }
 
+    /**
+     * Inicjalizuje tabelę i ładuje dane z CSV.
+     */
     private void initTable() {
         String[] columns = {"Słowo", "Tłumaczenie"};
         tableModel = new DefaultTableModel(columns, 0) {
@@ -94,6 +106,11 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * Odświeża zawartość tabeli listą fiszek.
+     *
+     * @param list lista fiszek do wyświetlenia
+     */
     private void updateTable(List<Flashcard> list) {
         tableModel.setRowCount(0);
         for (Flashcard f : list) {
@@ -101,6 +118,9 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * Obsługa dodania nowej fiszki poprzez okno dialogowe.
+     */
     private void addCard() {
         try {
             String term = JOptionPane.showInputDialog(this, "Wprowadź słowo (ang.):");
@@ -116,6 +136,9 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * Obsługa usuwania poprzez okno dialogowe.
+     */
     private void removeCard() {
         String term = JOptionPane.showInputDialog(this, "Wprowadź słowo fiszki do usunięcia:");
         if (term == null || term.trim().isEmpty()) return;
@@ -132,6 +155,9 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * Wyszukuje fiszkę i wyświetla wyniki w tabeli.
+     */
     private void searchCard() {
         String term = JOptionPane.showInputDialog(this, "Wyszukaj fiszkę (słowo lub tłumaczenie):");
         if (term == null || term.trim().isEmpty()) return;
@@ -143,6 +169,9 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * Zapisuje plik CSV, wyświetla statystyki i zamyka aplikację.
+     */
     private void onExit() {
         try {
             mgr.saveToCSV("cards.csv");
