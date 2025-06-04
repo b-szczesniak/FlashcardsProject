@@ -50,12 +50,13 @@ public class MainFrame extends JFrame {
         JButton btnAdd = new JButton("Dodaj");
         JButton btnRemove = new JButton("Usuń");
         JButton btnSearch = new JButton("Wyszukaj");
+        JButton btnUpdate = new JButton("Zaktualizuj");
         JButton btnShow = new JButton("Pokaż wszystkie");
         JButton btnExit = new JButton("Zapisz i zakończ");
 
         Font btnFont = new Font(Font.SANS_SERIF, Font.BOLD, 16);
         Dimension btnSize = new Dimension(150, 45);
-        for (JButton btn : new JButton[]{btnAdd, btnRemove, btnSearch, btnShow, btnExit}) {
+        for (JButton btn : new JButton[]{btnAdd, btnRemove, btnSearch, btnUpdate, btnShow, btnExit}) {
             btn.setFont(btnFont);
             btn.setPreferredSize(btnSize);
         }
@@ -63,12 +64,14 @@ public class MainFrame extends JFrame {
         btnAdd.addActionListener(e -> addCard());
         btnRemove.addActionListener(e -> removeCard());
         btnSearch.addActionListener(e -> searchCard());
+        btnUpdate.addActionListener(e -> updateCard());
         btnShow.addActionListener(e -> updateTable(mgr.getCardsSorted()));
         btnExit.addActionListener(e -> onExit());
 
         toolBar.add(btnAdd);
         toolBar.add(btnRemove);
         toolBar.add(btnSearch);
+        toolBar.add(btnUpdate);
         toolBar.add(btnShow);
         toolBar.addSeparator(new Dimension(20, 0));
         toolBar.add(btnExit);
@@ -137,6 +140,33 @@ public class MainFrame extends JFrame {
     }
 
     /**
+     * Obsługa aktualizacji fiszki poprzez okna dialogowe.
+     */
+    private void updateCard()
+    {
+        try {
+            String searchTerm = JOptionPane.showInputDialog(this, "Wyszukaj słowo, które chcesz zaktualizować (ang.) :");
+            if (searchTerm == null || searchTerm.trim().isEmpty()) return;
+            List<Flashcard> results = mgr.searchCard(searchTerm.trim());
+            if (!results.isEmpty()) {
+                String newTerm = JOptionPane.showInputDialog(this, "Wprowadź słowo (ang.):");
+                if (newTerm == null || newTerm.trim().isEmpty()) return;
+                String newTranslation = JOptionPane.showInputDialog(this, "Wprowadź tłumaczenie:");
+                if (newTranslation == null || newTranslation.trim().isEmpty()) return;
+                mgr.updateCard(results, newTerm.trim(), newTranslation.trim());
+                updateTable(mgr.getCardsSorted());
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "Nie znaleziono takiego słowa.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Błąd: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
      * Obsługa usuwania poprzez okno dialogowe.
      */
     private void removeCard() {
@@ -187,6 +217,7 @@ public class MainFrame extends JFrame {
         statsModel.addRow(new Object[]{"Dodano fiszek", mgr.getAddCount()});
         statsModel.addRow(new Object[]{"Usunięto fiszek", mgr.getRemoveCount()});
         statsModel.addRow(new Object[]{"Wyszukiwań", mgr.getSearchCount()});
+        statsModel.addRow(new Object[]{"Zaktualizowano fiszek", mgr.getUpdateCount()});
         JTable statsTable = new JTable(statsModel);
         statsTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
         statsTable.setRowHeight(24);
