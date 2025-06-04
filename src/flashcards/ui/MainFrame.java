@@ -127,9 +127,11 @@ public class MainFrame extends JFrame {
     private void addCard() {
         try {
             String term = JOptionPane.showInputDialog(this, "Wprowadź słowo (ang.):");
-            if (term == null || term.trim().isEmpty()) return;
+            boolean ScontainsDigit = term.chars().anyMatch(Character::isDigit);
+            if (term == null || term.trim().isEmpty() || ScontainsDigit) return;
             String translation = JOptionPane.showInputDialog(this, "Wprowadź tłumaczenie:");
-            if (translation == null || translation.trim().isEmpty()) return;
+            boolean TcontainsDigit = translation.chars().anyMatch(Character::isDigit);
+            if (translation == null || translation.trim().isEmpty() || TcontainsDigit) return;
             mgr.addCard(new Flashcard(term.trim(), translation.trim()));
             updateTable(mgr.getCardsSorted());
         } catch (Exception ex) {
@@ -150,9 +152,11 @@ public class MainFrame extends JFrame {
             List<Flashcard> results = mgr.searchCard(searchTerm.trim());
             if (!results.isEmpty()) {
                 String newTerm = JOptionPane.showInputDialog(this, "Wprowadź słowo (ang.):");
-                if (newTerm == null || newTerm.trim().isEmpty()) return;
+                boolean NScontainsDigit = newTerm.chars().anyMatch(Character::isDigit);
+                if (newTerm == null || newTerm.trim().isEmpty() || NScontainsDigit) return;
                 String newTranslation = JOptionPane.showInputDialog(this, "Wprowadź tłumaczenie:");
-                if (newTranslation == null || newTranslation.trim().isEmpty()) return;
+                boolean NTcontainsDigit = newTranslation.chars().anyMatch(Character::isDigit);
+                if (newTranslation == null || newTranslation.trim().isEmpty() || NTcontainsDigit) return;
                 mgr.updateCard(results, newTerm.trim(), newTranslation.trim());
                 updateTable(mgr.getCardsSorted());
             }
