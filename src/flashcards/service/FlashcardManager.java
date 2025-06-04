@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class FlashcardManager {
     private List<Flashcard> cards = new ArrayList<>();
-    private int addCount = 0, searchCount = 0, removeCount = 0;
+    private int addCount = 0, searchCount = 0, removeCount = 0, updateCount = 0;
 
     /**
      * Wczytuje fiszki z pliku CSV, zamieniając obecną listę.
@@ -62,6 +62,30 @@ public class FlashcardManager {
     }
 
     /**
+     * Pozwala na aktualizacje wyrazu i tłumaczenia fiszki
+     *
+     * @param cards lista znalezionych fiszek
+     * @param newTerm nowy tekst którym zastępujemy poprzedni
+     * @param newTranslation nowe tłumaczenie którym zastępujemy poprzednie
+     * @return boolean zwraca true jeśli operacja się udała i false jeśli nie
+     */
+    public boolean updateCard(List<Flashcard> cards, String newTerm, String newTranslation) {
+        if (cards.isEmpty()) {
+            return false;
+        }
+
+        Flashcard card = cards.getFirst();
+        if (newTerm != null && !newTerm.isEmpty()) {
+            card.setTerm(newTerm);
+        }
+        if (newTranslation != null && !newTranslation.isEmpty()) {
+            card.setTranslation(newTranslation);
+        }
+        updateCount++;
+        return true;
+    }
+
+    /**
      * Usuwa podaną fiszkę z listy i inkrementuje licznik.
      *
      * @param card fiszka do usunięcia
@@ -85,21 +109,28 @@ public class FlashcardManager {
     /**
      * Zwraca liczbę dodanych fiszek.
      *
-     * @return liczba operacji add()
+     * @return liczba operacji addCard()
      */
     public int getAddCount()    { return addCount;}
 
     /**
      * Zwraca liczbę operacji wyszukiwania.
      *
-     * @return liczba operacji search()
+     * @return liczba operacji searchCard()
      */
     public int getSearchCount() { return searchCount;}
 
     /**
      * Zwraca liczbę operacji usuwania.
      *
-     * @return liczba operacji remove()
+     * @return liczba operacji removeCard()
      */
     public int getRemoveCount() { return removeCount;}
+
+    /**
+     * Zwraca liczbę operacji aktualizowania.
+     *
+     * @return liczba operacji updateCard()
+     */
+    public int getUpdateCount() { return updateCount;}
 }
